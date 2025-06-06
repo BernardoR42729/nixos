@@ -156,7 +156,12 @@
   security.sudo.wheelNeedsPassword = true; # Or false if you prefer passwordless sudo for wheel group.
 
   programs.firefox.enable = true;
-  programs.fish.enable = true;
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = ''
+    fastfetch
+    '';
+  };
   programs.neovim = {
     enable = true;
     defaultEditor = true;
