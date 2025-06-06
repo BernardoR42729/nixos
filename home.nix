@@ -28,6 +28,7 @@
     onedrive
     nwg-displays
     obsidian
+    gh
 
     # coding
     jetbrains.idea-community
