@@ -35,6 +35,7 @@
     code-cursor
     vscode
     docker
+    helix
   ];
 
   # Example: Declaratively configure Git.
