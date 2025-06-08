@@ -3,7 +3,6 @@
 
   # Define all external dependencies (inputs) for your configuration
   inputs = {
-    # Nixpkgs: The official Nix package collection.
     # We're using 'nixos-unstable' for newer packages, especially for Hyprland.
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -22,11 +21,13 @@
     #   url = "github:hyprwm/hyprland-plugins";
     #   inputs.nixpkgs.follows = "nixpkgs"; # Also use same nixpkgs
     # };
+
+    nvf.url = "github:notashelf/nvf";
   };
 
   # Define what this flake provides (outputs)
   # The '@inputs' captures all defined inputs for easy access.
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, nvf, ... }@inputs:
     let
       # Define some reusable variables for your configurations.
       # Change 'yourusername' to your actual Linux username.
@@ -39,6 +40,13 @@
     {
       # This is where you define your NixOS system configurations.
       # You can define multiple systems here if you manage several machines.
+
+      packages.system.default =
+        (nvf.lib.neovimConfiguration {
+	  pkgs = nixpkgs.legacyPackages.system;
+	  modules = [ ./modules/nvf-configuration.nix ];
+	}).neovim;
+
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         inherit system; # Pass the architecture.
 
@@ -47,9 +55,11 @@
         # This is how your configuration files will access 'inputs', 'username', etc.
         specialArgs = { inherit inputs username hostname; };
 
+
         modules = [
           # Import your main system configuration file.
           ./configuration.nix
+	  nvf.nixosModules.default
 
           # Import the Home Manager NixOS module.
           # This integrates Home Manager into the system build process.
