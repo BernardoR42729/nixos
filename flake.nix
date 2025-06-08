@@ -41,9 +41,9 @@
       # This is where you define your NixOS system configurations.
       # You can define multiple systems here if you manage several machines.
 
-      packages.system.default =
+      packages.${system}.nvf =
         (nvf.lib.neovimConfiguration {
-	  pkgs = nixpkgs.legacyPackages.system;
+	  pkgs = nixpkgs.legacyPackages.${system};
 	  modules = [ ./modules/nvf-configuration.nix ];
 	}).neovim;
 
@@ -59,7 +59,6 @@
         modules = [
           # Import your main system configuration file.
           ./configuration.nix
-	  nvf.nixosModules.default
 
           # Import the Home Manager NixOS module.
           # This integrates Home Manager into the system build process.
@@ -83,7 +82,10 @@
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system}; # Provide the package set for this user.
         extraSpecialArgs = { inherit inputs username; }; # Pass args to home.nix
-        modules = [ ./home.nix ];
+        modules = [ 
+	  ./home.nix
+	  nvf.homeManagerModules.default
+	];
       };
     };
 }

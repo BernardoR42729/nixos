@@ -162,10 +162,6 @@
     fastfetch
     '';
   };
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-  };
   programs.chromium.enable = true;
 
 

@@ -3,6 +3,8 @@
 { pkgs, inputs, username, ... }:
 
 {
+  imports = [ inputs.nvf.homeManagerModules.default ];
+
   # Home Manager needs a state version.
   # Update this when you significantly update Home Manager or Nixpkgs.
   # It helps Home Manager manage configuration transitions smoothly.
@@ -44,6 +46,17 @@
     enable = true;
     userName = "bernardo"; 
     userEmail = "b.rosario@campus.fct.unl.pt";
+  };
+
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+  };
+
+  programs.nvf = {
+    enable = true;
+    # Optionally, specify your own nvf modules/config
+    modules = [ ./modules/nvf-configuration.nix ];
   };
 
   # We will add Hyprland's user-specific configuration here later.
