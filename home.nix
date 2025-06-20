@@ -1,10 +1,11 @@
 # These arguments (pkgs, inputs, username) are passed from 'specialArgs'
 # defined in your flake.nix when Home Manager evaluates this file.
-{ pkgs, inputs, username, ... }:
-
 {
-  imports = [ inputs.nvf.homeManagerModules.default ];
-
+  pkgs,
+  inputs,
+  username,
+  ...
+}: {
   # Home Manager needs a state version.
   # Update this when you significantly update Home Manager or Nixpkgs.
   # It helps Home Manager manage configuration transitions smoothly.
@@ -26,11 +27,18 @@
     legcord
     protonvpn-gui
     fastfetch
+
+    # browsers
     brave
+    vivaldi
+
     onedrive
     nwg-displays
     obsidian
     gh
+    zellij
+    gcc
+    ripgrep
 
     # coding
     jetbrains.idea-community
@@ -38,28 +46,28 @@
     vscode
     docker
     helix
+    inputs.Lumi.packages.${system}.default
   ];
 
   # Example: Declaratively configure Git.
   # Home Manager will write the appropriate ~/.gitconfig.
   programs.git = {
     enable = true;
-    userName = "bernardo"; 
+    userName = "bernardo";
     userEmail = "b.rosario@campus.fct.unl.pt";
+    extraConfig = {
+      credential = {
+        helper = "!gh auth git-credential";
+      };
+    };
   };
 
   programs.neovim = {
     enable = true;
-    defaultEditor = true;
   };
 
-  programs.nvf = {
-    enable = true;
-    # Optionally, specify your own nvf modules/config
-    modules = [ ./modules/nvf-configuration.nix ];
-  };
+  programs.zoxide.enable = true;
 
   # We will add Hyprland's user-specific configuration here later.
   # For example, Hyprland's main config file, Waybar config, Kitty config, etc.
 }
-
