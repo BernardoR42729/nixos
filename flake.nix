@@ -15,10 +15,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nvf = {
-      url = "github:notashelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nvf = {
+    #   url = "github:notashelf/nvf";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     Lumi = {
       url = "github:BernardoR42729/Lumi";
@@ -29,7 +29,7 @@
     self,
     nixpkgs,
     home-manager,
-    nvf,
+    # nvf,
     ...
   } @ inputs: let
     # Define some reusable variables for your configurations.
@@ -37,12 +37,11 @@
     hostname = "nixos";
     system = "x86_64-linux";
   in {
-
-    packages.${system}.nvf =
-      (nvf.lib.neovimConfiguration {
-        pkgs = nixpkgs.legacyPackages.${system};
-        modules = [./modules/nvf-configuration.nix];
-      }).neovim;
+    # packages.${system}.nvf =
+    #   (nvf.lib.neovimConfiguration {
+    #     pkgs = nixpkgs.legacyPackages.${system};
+    #     modules = [./modules/nvf-configuration.nix];
+    #   }).neovim;
 
     nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
       inherit system; # Pass the architecture.
@@ -65,7 +64,7 @@
             # For the specified user, import their Home Manager configuration.
             imports = [
               ./home.nix
-              nvf.homeManagerModules.default
+              # nvf.homeManagerModules.default
             ];
           };
         }
@@ -80,7 +79,7 @@
       extraSpecialArgs = {inherit inputs username;}; # Pass args to home.nix
       modules = [
         ./home.nix
-        nvf.homeManagerModules.default
+        # nvf.homeManagerModules.default
       ];
     };
   };
