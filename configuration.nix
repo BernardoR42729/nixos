@@ -1,17 +1,22 @@
 # Edit this configuration file to define what should be installed on
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
-{ config, lib, pkgs, inputs, hostname, username, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  config,
+  lib,
+  pkgs,
+  inputs,
+  hostname,
+  username,
+  ...
+}: {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # enabling Flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
   nixpkgs.config.allowUnfree = true;
 
@@ -22,7 +27,7 @@
   networking.hostName = hostname; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   # Set your time zone.
   time.timeZone = "Europe/Lisbon";
@@ -54,10 +59,10 @@
   # services.xserver.enable = true;
   services.xserver = {
     enable = true;
-    videoDrivers = [ "nvidia" ];
+    videoDrivers = ["nvidia"];
   };
 
-# --- NVIDIA DRIVER CONFIGURATION ---
+  # --- NVIDIA DRIVER CONFIGURATION ---
   hardware.nvidia = {
     # Modesetting is essential for Wayland.
     modesetting.enable = true;
@@ -89,7 +94,7 @@
     # NixOS will automatically configure it to use NVIDIA drivers when 'services.xserver.videoDrivers = [ "nvidia" ];' is set.
   };
 
-# --- DISPLAY MANAGER (SDDM) ---
+  # --- DISPLAY MANAGER (SDDM) ---
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true; # Crucial: tells SDDM to list and prefer Wayland sessions
@@ -124,7 +129,7 @@
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
- # Enable sound.
+  # Enable sound.
   services.pipewire = {
     enable = true;
     # pulseaudio compatibility
@@ -142,67 +147,66 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
- # Define a user account. Don't forget to set a password with ‘passwd’.
- users.users.${username} = {
-   isNormalUser = true;
-   extraGroups = [ "wheel" "networkmanager" "video" "audio" ]; # Enable ‘sudo’ for the user.
-   shell = pkgs.fish;
-   packages = with pkgs; [
-     tree
-   ];
- };
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.${username} = {
+    isNormalUser = true;
+    extraGroups = ["wheel" "networkmanager" "video" "audio"]; # Enable ‘sudo’ for the user.
+    shell = pkgs.fish;
+    packages = with pkgs; [
+      tree
+    ];
+  };
 
- # Allow users in the 'wheel' group to use sudo.
+  # Allow users in the 'wheel' group to use sudo.
   security.sudo.wheelNeedsPassword = true; # Or false if you prefer passwordless sudo for wheel group.
 
   programs.firefox.enable = true;
   programs.fish = {
     enable = true;
     interactiveShellInit = ''
-    fastfetch
+      fastfetch
     '';
   };
   programs.chromium.enable = true;
 
-
   # List packages installed in system profile. To search, run:
   # $ nix search wget
- environment.systemPackages = with pkgs; [
-   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-   wget
-   neovim
-   rofi-wayland
-   nvidia-vaapi-driver
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    wget
+    neovim
+    rofi-wayland
+    nvidia-vaapi-driver
+    wl-clipboard
 
-   # terminals
-   ghostty
-   kitty
+    # terminals
+    ghostty
+    kitty
 
-   yazi
-   btop
-   speedcrunch
+    yazi
+    btop
+    speedcrunch
 
-   # VCS
-   git
+    # VCS
+    git
 
-   # sound
-   qpwgraph
-   pavucontrol
+    # sound
+    qpwgraph
+    pavucontrol
 
-   # hyprland
-   waybar
-   swaynotificationcenter	# notifications
-   hyprpaper			# 
-   networkmanagerapplet
-   hyprpolkitagent
-   nerd-fonts.jetbrains-mono
-   grim
-   slurp
-   brightnessctl
-   hyprcursor
-
- ];
-# Hyprland
+    # hyprland
+    waybar
+    swaynotificationcenter # notifications
+    hyprpaper #
+    networkmanagerapplet
+    hyprpolkitagent
+    nerd-fonts.jetbrains-mono
+    grim
+    slurp
+    brightnessctl
+    hyprcursor
+  ];
+  # Hyprland
   programs.hyprland = {
     enable = true;
     package = inputs.hyprland.packages."${pkgs.system}".hyprland;
@@ -266,6 +270,4 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "24.11"; # Did you read the comment?
-
 }
-

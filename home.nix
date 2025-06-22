@@ -68,6 +68,11 @@
 
   programs.zoxide.enable = true;
 
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+  };
+
   # We will add Hyprland's user-specific configuration here later.
   # For example, Hyprland's main config file, Waybar config, Kitty config, etc.
 }
