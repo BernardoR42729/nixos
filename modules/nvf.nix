@@ -8,26 +8,7 @@
     # Core Neovim Configuration (Neovim's own settings)
     # -------------------------------------------------------------------------
     settings = {
-      vim = {
-        opts = {
-          number = true;
-          relativenumber = true;
-          mouse = "a";
-          tabstop = 2;
-          shiftwidth = 2;
-          expandtab = true;
-          smartindent = true;
-          incsearch = true;
-          ignorecase = true;
-          smartcase = true;
-          termguicolors = true;
-          signcolumn = "yes";
-          wrap = true;
-          scrolloff = 8;
-          updatetime = 50;
-          undofile = true;
-        };
-
+      config.vim = {
         viAlias = true;
         vimAlias = true;
         debugMode = {
@@ -36,9 +17,10 @@
           logFile = "/tmp/nvim.log";
         };
 
-        spellcheck = {
-          enable = true;
-        };
+        # spellcheck = {
+        #   enable = true;
+        #   programmingWordlist.enable = true;
+        # };
 
         lsp = {
           # This must be enabled for the language modules to hook into
@@ -50,6 +32,7 @@
           lightbulb.enable = true;
           lspsaga.enable = false;
           trouble.enable = true;
+          lspSignature.enable = !true; # conflicts with blink in maximal
           otter-nvim.enable = true;
           nvim-docs-view.enable = true;
         };
@@ -64,7 +47,7 @@
         # This section does not include a comprehensive list of available language modules.
         # To list all available language module options, please visit the nvf manual.
         languages = {
-          enableFormat = true; #
+          enableFormat = true;
           enableTreesitter = true;
           enableExtraDiagnostics = true;
 
@@ -79,15 +62,37 @@
           html.enable = true;
           sql.enable = true;
           java.enable = true;
+          kotlin.enable = true;
           ts.enable = true;
           go.enable = true;
           lua.enable = true;
+          zig.enable = true;
           python.enable = true;
+          typst.enable = true;
           rust = {
             enable = true;
             crates.enable = true;
           };
+
+          # Language modules that are not as common.
+          assembly.enable = false;
+          astro.enable = false;
+          nu.enable = false;
+          csharp.enable = false;
+          julia.enable = false;
+          vala.enable = false;
+          scala.enable = false;
+          r.enable = false;
+          gleam.enable = false;
+          dart.enable = false;
+          ocaml.enable = false;
+          elixir.enable = false;
+          haskell.enable = false;
+          ruby.enable = false;
+          fsharp.enable = false;
+
           tailwind.enable = false;
+          svelte.enable = false;
 
           # Nim LSP is broken on Darwin and therefore
           # should be disabled by default. Users may still enable
@@ -132,7 +137,7 @@
         # enable blink-cmp in maximal because it needs to build its rust fuzzy
         # matcher library.
         autocomplete = {
-          # nvim-cmp.enable = !isMaximal;
+          nvim-cmp.enable = !true;
           blink-cmp.enable = true;
         };
 
@@ -153,7 +158,6 @@
         binds = {
           whichKey.enable = true;
           cheatsheet.enable = true;
-          hardtime-nvim.enable = true;
         };
 
         telescope.enable = true;
@@ -162,6 +166,7 @@
           enable = true;
           gitsigns.enable = true;
           gitsigns.codeActions.enable = false; # throws an annoying debug message
+          neogit.enable = true;
         };
 
         minimap = {
@@ -191,6 +196,9 @@
           surround.enable = true;
           leetcode-nvim.enable = true;
           multicursors.enable = true;
+          smart-splits.enable = true;
+          undotree.enable = true;
+          nvim-biscuits.enable = true;
 
           motion = {
             hop.enable = true;

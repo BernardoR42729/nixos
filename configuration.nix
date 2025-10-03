@@ -13,6 +13,8 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ./modules
+    ./users.nix
   ];
 
   # enabling Flakes
@@ -23,6 +25,7 @@
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = false;
 
   networking.hostName = hostname; # Define your hostname.
   # Pick only one of the below networking options.
@@ -32,28 +35,20 @@
   # Set your time zone.
   time.timeZone = "Europe/Lisbon";
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
+    LC_LANGUAGE = "en_US.UTF-8";
+    LC_ADDRESS = "pt_PT.UTF-8";
+    LC_IDENTIFICATION = "pt_PT.UTF-8";
+    LC_MEASUREMENT = "pt_PT.UTF-8";
+    LC_MONETARY = "pt_PT.UTF-8";
+    LC_NAME = "pt_PT.UTF-8";
+    LC_NUMERIC = "pt_PT.UTF-8";
+    LC_PAPER = "pt_PT.UTF-8";
+    LC_TELEPHONE = "pt_PT.UTF-8";
+    LC_TIME = "pt_PT.UTF-8";
   };
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  #   useXkbConfig = true; # use xkb.options in tty.
-  # };
 
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
@@ -70,20 +65,19 @@
     # Use the proprietary drivers. 'false' means proprietary.
     open = false;
 
-    # Power management can be useful, but sometimes causes issues.
-    # Start with it enabled. If you face instability or resume issues, try disabling it.
-    powerManagement.enable = true; # Or false if issues arise
-
     # Optionally, specify the NVIDIA package. 'stable' is usually fine for a 1080 Ti.
     # Other options: beta, legacy_470 etc. (but 1080 Ti is well supported by stable)
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.beta;
   };
+
+  hardware.bluetooth.enable = true;
 
   # Optional: Explicitly set kernel parameters for NVIDIA.
   # `hardware.nvidia.modesetting.enable = true;` should handle this,
   # but being explicit can sometimes help or be necessary for certain setups.
   boot.kernelParams = [
     "nvidia-drm.modeset=1"
+    "nvidia-drm.fbdev=1"
     # "nvidia.NVreg_PreserveVideoMemoryAllocations=1" # Can help with resume from suspend
     # "nvidia.NVreg_TemporaryFilePath=/var/tmp"
   ];
@@ -91,23 +85,8 @@
   # Ensure OpenGL is enabled and uses NVIDIA.
   hardware.graphics = {
     enable = true;
+    enable32Bit = true;
     # NixOS will automatically configure it to use NVIDIA drivers when 'services.xserver.videoDrivers = [ "nvidia" ];' is set.
-  };
-
-  # --- DISPLAY MANAGER (SDDM) ---
-  services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = true; # Crucial: tells SDDM to list and prefer Wayland sessions
-    # theme = "my-sddm-theme"; # Optional: if you install a custom SDDM theme package
-    # Example: To use the 'catppuccin-mocha' theme for SDDM (install it first)
-    # package = pkgs.sddm-catppuccin-theme; # You'd need to find or package this
-    # theme = "catppuccin-mocha";
-    # For a simpler, built-in theme that often works well:
-    # theme = "elarun"; # Or "maldives", "maya"
-
-    # Optional: Auto-login for the primary user
-    # autologin.enable = true;
-    # autologin.user = username; # Uses the username from specialArgs
   };
 
   environment.sessionVariables = {
@@ -117,17 +96,12 @@
     LIBVA_DRIVER_NAME = "nvidia"; # For hardware video acceleration (VA-API)
     GBM_BACKEND = "nvidia-drm";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    __GL_GSYNC_ALLOWED = "1";
+    __GL_VRR_ALLOWED = "0";
     WLR_NO_HARDWARE_CURSORS = "1"; # Can fix cursor rendering issues on NVIDIA with some compositors
     NVD_BACKEND = "direct"; # For NVIDIA's direct rendering manager backend
     # XDG_SESSION_TYPE = "wayland"; # GDM should set this, but can be explicit
   };
-
-  # Configure keymap in X11
-  # services.xserver.xkb.layout = "us";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
 
   # Enable sound.
   services.pipewire = {
@@ -144,68 +118,149 @@
   # Enable RealtimeKit for better low-latency performance.
   security.rtkit.enable = true;
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.${username} = {
-    isNormalUser = true;
-    extraGroups = ["wheel" "networkmanager" "video" "audio"]; # Enable ‘sudo’ for the user.
-    shell = pkgs.fish;
-    packages = with pkgs; [
-      tree
-    ];
-  };
-
   # Allow users in the 'wheel' group to use sudo.
   security.sudo.wheelNeedsPassword = true; # Or false if you prefer passwordless sudo for wheel group.
-
-  programs.firefox.enable = true;
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      fastfetch
-    '';
-  };
-  programs.chromium.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
+    rofi
     neovim
-    rofi-wayland
-    nvidia-vaapi-driver
     wl-clipboard
+    overskride # bluetooth
+    xfce.thunar
+    lsof
+    bluez-tools
+    spotify
+    # productivity
+    obsidian
+    logseq
+
+    onedrive
+    fastfetch
+    vesktop
+    fzf
+    # zoxide
+    zellij
+    python314
+
+    # browsers
+    brave
+    vivaldi
+    chromium
+    floorp-bin
+    tor-browser
+    # ---
+    zathura #pdf
+    mesa
+    vaapiVdpau
+    libvdpau-va-gl
+    nvidia-vaapi-driver
 
     # terminals
     ghostty
     kitty
+    foot
 
     yazi
     btop
     speedcrunch
-
-    # VCS
-    git
 
     # sound
     qpwgraph
     pavucontrol
 
     # hyprland
-    waybar
     swaynotificationcenter # notifications
-    hyprpaper #
-    networkmanagerapplet
+    # mako
+    swww
+    hyprpaper
+    hyprsunset
+    hyprcursor
     hyprpolkitagent
-    nerd-fonts.jetbrains-mono
+    hyprsunset
+    networkmanagerapplet
     grim
     slurp
     brightnessctl
-    hyprcursor
+    gnome-keyring
+    rose-pine-hyprcursor
+    bibata-cursors
+
+    # # niri
+    # alacritty
+    # xdg-desktop-portal-gtk
+    # xdg-desktop-portal-gtk
+    # gnome-keyring
+    # mako
+    # nautilus
+    # polkit_gnome
+    # fuzzel
   ];
+
+  # Fonts
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.fira-code
+    font-awesome
+    noto-fonts
+    nerd-fonts._0xproto
+    nerd-fonts.space-mono
+  ];
+
+  # niri
+  # programs.niri.enable = true;
+  #
+  # programs.waybar.enable = true;
+  # systemd.packages = [
+  #   pkgs.xwayland-satellite
+  #
+  #   pkgs.mako
+  # ];
+  # systemd.user.services.mako.wantedBy = ["graphical-session.target"];
+  # # make sure xwayland-satellite starts up
+  # systemd.user.services.xwayland-satellite.wantedBy = ["graphical-session.target"];
+
+  programs.firefox.enable = true;
+
+  # programs.fish = {
+  #   enable = true;
+  #   interactiveShellInit = ''
+  #     fastfetch
+  #   '';
+  # };
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    interactiveShellInit = ''
+      fastfetch
+    '';
+  };
+
+  programs.fzf = {
+    fuzzyCompletion = true;
+    keybindings = true;
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
+  programs.tmux = {
+    enable = true;
+    keyMode = "vi";
+    historyLimit = 5000;
+  };
+
+  programs.starship.enable = true;
+
+  programs.chromium.enable = true;
+
   # Hyprland
   programs.hyprland = {
     enable = true;
@@ -213,26 +268,49 @@
     withUWSM = true; # recommended for most users
     xwayland.enable = true; # Xwayland can be disabled.
   };
+
+  programs.waybar.enable = true;
+
+  # Polkit authentication agent
+  security.polkit.enable = true;
+
   # Cachix to not have to rebuild hyprland
   nix.settings = {
     substituters = ["https://hyprland.cachix.org"];
     trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
   };
-  # Screesharing
-  #xdg.portal = {
-  #  enable = true;
-  #  extraPortals = with pkgs; [ xdg-desktop-portal-hyprland ];
-  #};
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.y
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
+  # Portals (screen share, file chooser)
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal-gtk
+    ];
+  };
+  # -------
   # List services that you want to enable:
+
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+        user = "greeter";
+      };
+    };
+  };
+  # Auto-login configuration
+  services.displayManager.autoLogin = {
+    user = username;
+    enable = true;
+  };
+
+  services.getty.autologinUser = username;
+
+  services.udisks2 = {
+    enable = true;
+    mountOnMedia = true;
+  };
 
   # Enable the OpenSSH daemon.
   services.openssh = {
@@ -241,33 +319,17 @@
       PasswordAuthentication = true;
     };
   };
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  # system.copySystemConfiguration = true;
+  services.power-profiles-daemon.enable = true;
 
-  # This option defines the first version of NixOS you have installed on this particular machine,
-  # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
-  #
-  # Most users should NEVER change this value after the initial install, for any reason,
-  # even if you've upgraded your system to a new NixOS release.
-  #
-  # This value does NOT affect the Nixpkgs version your packages and OS are pulled from,
-  # so changing it will NOT upgrade your system - see https://nixos.org/manual/nixos/stable/#sec-upgrading for how
-  # to actually do that.
-  #
-  # This value being lower than the current NixOS release does NOT mean your system is
-  # out of date, out of support, or vulnerable.
-  #
-  # Do NOT change this value unless you have manually inspected all the changes it would make to your configuration,
-  # and migrated your data accordingly.
-  #
-  # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
+  services.flatpak = {
+    enable = true;
+    packages = [
+      "app.zen_browser.zen"
+    ];
+  };
+
+  documentation.man.generateCaches = false;
+
   system.stateVersion = "24.11"; # Did you read the comment?
 }
