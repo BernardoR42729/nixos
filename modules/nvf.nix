@@ -11,6 +11,10 @@
       config.vim = {
         viAlias = true;
         vimAlias = true;
+
+        options = {
+          shiftwidth = 4;
+        };
         debugMode = {
           enable = false;
           level = 16;
@@ -251,12 +255,12 @@
 
         assistant = {
           chatgpt.enable = false;
-          copilot = {
-            enable = false;
-            cmp.enable = true;
-          };
+          # copilot = {
+          #   enable = false;
+          #   cmp.enable = true;
+          # };
           codecompanion-nvim.enable = false;
-          avante-nvim.enable = true;
+          # avante-nvim.enable = true;
         };
 
         session = {

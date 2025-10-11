@@ -9,7 +9,8 @@
   hostname,
   username,
   ...
-}: {
+}:
+{
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -18,7 +19,10 @@
   ];
 
   # enabling Flakes
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   nixpkgs.config.allowUnfree = true;
 
@@ -54,7 +58,7 @@
   # services.xserver.enable = true;
   services.xserver = {
     enable = true;
-    videoDrivers = ["nvidia"];
+    videoDrivers = [ "nvidia" ];
   };
 
   # --- NVIDIA DRIVER CONFIGURATION ---
@@ -126,14 +130,24 @@
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
+    # nix
+    nil
+    nixd
+    nixpkgs-fmt
+
     rofi
+    # editors
+    evil-helix
+    zed-editor
     neovim
+
     wl-clipboard
     overskride # bluetooth
     xfce.thunar
     lsof
     bluez-tools
     spotify
+
     # productivity
     obsidian
     logseq
@@ -153,16 +167,17 @@
     floorp-bin
     tor-browser
     # ---
-    zathura #pdf
+    zathura # pdf
     mesa
     vaapiVdpau
-    libvdpau-va-gl
+    # libvdpau-va-gl
     nvidia-vaapi-driver
 
     # terminals
     ghostty
     kitty
     foot
+    wezterm
 
     yazi
     btop
@@ -276,8 +291,8 @@
 
   # Cachix to not have to rebuild hyprland
   nix.settings = {
-    substituters = ["https://hyprland.cachix.org"];
-    trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+    substituters = [ "https://hyprland.cachix.org" ];
+    trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
   };
   # Portals (screen share, file chooser)
   xdg.portal = {
@@ -324,6 +339,7 @@
 
   services.flatpak = {
     enable = true;
+    update.onActivation = true;
     packages = [
       "app.zen_browser.zen"
     ];
