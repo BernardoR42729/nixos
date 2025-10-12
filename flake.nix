@@ -29,49 +29,58 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nvf = {
-      url = "github:notashelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nvf = {
+    #   url = "github:notashelf/nvf";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     nix-flatpak = {
       url = "github:gmodena/nix-flatpak";
     };
 
-    mnw.url = "github:Gerg-L/mnw";
+    # mnw.url = "github:Gerg-L/mnw";
 
     # Lumi = {
     #   url = "github:BernardoR42729/Lumi";
     # };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    ...
-  } @ inputs: let
-    # Define some reusable variables for your configurations.
-    username = "bernardo";
-    hostname = "nixos";
-    system = "x86_64-linux";
-  in {
-    packages.${system} = {
-      neovim = nixpkgs.legacyPackages.${system}.callPackage ./modules/neovim.nix;
+  outputs =
+    {
+      self,
+      nixpkgs,
+      ...
+    }@inputs:
+    let
+      # Define some reusable variables for your configurations.
+      username = "bernardo";
+      hostname = "nixos";
+      system = "x86_64-linux";
+    in
+    {
+      packages.${system} = {
+        neovim = nixpkgs.legacyPackages.${system}.callPackage ./modules/neovim.nix;
+      };
+
+      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
+        inherit system; # Pass the architecture.
+
+        specialArgs = {
+          inherit
+            inputs
+            username
+            hostname
+            self
+            ;
+        };
+
+        modules = [
+          # Import your main system configuration file.
+          ./configuration.nix
+          ./modules
+          inputs.hjem.nixosModules.default
+          inputs.nix-flatpak.nixosModules.nix-flatpak
+        ];
+      };
     };
-
-    nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-      inherit system; # Pass the architecture.
-
-      specialArgs = {inherit inputs username hostname self;};
-
-      modules = [
-        # Import your main system configuration file.
-        ./configuration.nix
-        ./modules
-        inputs.nvf.nixosModules.default
-        inputs.hjem.nixosModules.default
-        inputs.nix-flatpak.nixosModules.nix-flatpak
-      ];
-    };
-  };
 }

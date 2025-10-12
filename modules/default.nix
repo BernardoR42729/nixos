@@ -1,6 +1,7 @@
-{config, pkgs, ...}:
+{ config, pkgs, ... }:
 {
-        imports = [
-                ./nvf.nix
-                ];
+  imports = [
+    # ./nvf.nix
+    # ./neovim.nix
+  ];
 }
