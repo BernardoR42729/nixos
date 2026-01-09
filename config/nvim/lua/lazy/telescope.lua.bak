@@ -1,0 +1,7 @@
+return {
+    "telescope.nvim",
+    lazy = true,
+    after = function()
+        require("telescope").setup()
+    end
+}

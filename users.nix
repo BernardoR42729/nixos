@@ -16,6 +16,7 @@
       "audio"
       "disks"
       "plugdev"
+      "docker"
     ]; # Enable ‘sudo’ for the user.
     shell = pkgs.zsh;
     packages = with pkgs; [

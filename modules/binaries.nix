@@ -1,0 +1,39 @@
+{ pkgs }:
+let
+  # We remove zoxide and ffmpeg as dependencies. zoxide being included means
+  # yazi doesn't use the global zoxide database, while ffmpeg increases the
+  # closure by 500MB, and I'm not using Yazi for video stuff.
+  customYazi = pkgs.yazi.override {
+    optionalDeps = with pkgs; [
+      jq
+      poppler-utils
+      _7zz
+      fd
+      ripgrep
+      fzf
+      imagemagick
+      chafa
+      resvg
+    ];
+  };
+
+  packages = with pkgs; [
+    # Language servers
+    nixd
+    nil
+    (jdt-language-server.override { jdk = pkgs.jdk_headless; }) # decreases closure
+    lua-language-server
+    fish-lsp
+    typescript-language-server
+    basedpyright
+    python313Packages.python-lsp-server
+    vscode-json-languageserver
+
+    # Formatters
+    (google-java-format.override { jre = pkgs.jre_headless; })
+    stylua
+    nixfmt
+    ruff
+    black
+  ];
+in packages ++ [ customYazi ]

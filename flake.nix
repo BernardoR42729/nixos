@@ -9,12 +9,14 @@
     #   url = "github:nix-community/home-manager";
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
+
     hjem = {
       url = "github:feel-co/hjem";
       # You may want hjem to use your defined nixpkgs input to
       # minimize redundancies.
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     hjem-rum = {
       url = "github:snugnug/hjem-rum";
       # You may want hjem-rum to use your defined nixpkgs input to
@@ -24,10 +26,17 @@
       # you use directly and the one hjem-rum uses.
       inputs.hjem.follows = "hjem";
     };
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
+
+    nvim = {
+      # url = "github:BernardoR73286/nvim";
+      url = "path:/home/bernardo/nvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # hyprland = {
+    #   url = "github:hyprwm/Hyprland";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     # nvf = {
     #   url = "github:notashelf/nvf";
@@ -38,11 +47,33 @@
       url = "github:gmodena/nix-flatpak";
     };
 
-    # mnw.url = "github:Gerg-L/mnw";
+    mnw.url = "github:Gerg-L/mnw";
 
-    # Lumi = {
-    #   url = "github:BernardoR42729/Lumi";
+    # quickshell = {
+    #   url = "github:outfoxxed/quickshell";
+    #   inputs.nixpkgs.follows = "nixpkgs";
     # };
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # DMS shell
+    # dgop = {
+    #   url = "github:AvengeMedia/dgop";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    dank-material-shell = {
+      url = "github:AvengeMedia/DankMaterialShell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # ---
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      # IMPORTANT: we're using "libgbm" and is only available in unstable so ensure
+      # to have it up-to-date or simply don't specify the nixpkgs input
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -58,9 +89,25 @@
       system = "x86_64-linux";
     in
     {
-      packages.${system} = {
-        neovim = nixpkgs.legacyPackages.${system}.callPackage ./modules/neovim.nix;
-      };
+      packages.${system} =
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = inputs.mnw.lib.wrap pkgs ./modules/neovim.nix;
+        };
+
+      devShells =
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = pkgs.mkShellNoCC {
+            packages = [
+              self.packages.${system}.default.devMode
+            ];
+          };
+        };
 
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         inherit system; # Pass the architecture.
@@ -77,7 +124,7 @@
         modules = [
           # Import your main system configuration file.
           ./configuration.nix
-          ./modules
+          # inputs.mnw.nixosModules.default
           inputs.hjem.nixosModules.default
           inputs.nix-flatpak.nixosModules.nix-flatpak
         ];
